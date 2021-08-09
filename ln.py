@@ -98,10 +98,8 @@ class Syosetu(LightNovel):
             .split('</div>', 1)[0]
         work_eps = work_html \
                        .text \
-                       .split('<div class="index_box">', 1) \
-                       .pop() \
-                       .split('</div>', 1)[0] \
-                       .split(f'{self.work_id}/')[1:]
+                       .split(f'<dl class="novel_sublist2">\n<dd class="subtitle">\n<a href="/{self.work_id}/')[1:]
+        work_eps[-1] = work_eps[-1].split('</div>', 1)[0]
 
         return work_title, work_author, work_intro, work_eps
 
@@ -245,7 +243,7 @@ def run(work_id: str, work_type: int, work_dir: str, work_format: str = "html",
 
     # update intro if necessary
     if work_intro != work_json['intro']:
-        path = f'{work_dir}/web/未/intro.txt'
+        path = f'{work_dir}/web/未/intro_{int(time.time())}.txt'
         with open(path, 'w', encoding='utf-8') as f:
             f.write(
                 f'原简介：\n{work_json["intro"].replace("<br />", "")}\n\n----------------\n\n新简介：\n{work_intro.replace("<br />", "")}')
@@ -300,16 +298,16 @@ def run(work_id: str, work_type: int, work_dir: str, work_format: str = "html",
 
             # write episode content to corresponding file
             if work_format == "html":
-                with open(f'{work_dir}/web/未/{ep_fn}.html', 'w', encoding='utf-8') as f:
+                with open(f'{work_dir}/web/未/{ep_fn}_{ts}.html', 'w', encoding='utf-8') as f:
                     f.write(
-                        f'<h1>{title}</h1><p><br /></p>\n{content}\n\n<!--\n投稿网站：{ln.work_website}\n投稿作品：{work_id}\n投稿时间：{ts_str}\n投稿ID：{ep_id}\n-->')
+                        f'<h1>{title}</h1>\n<p><br /></p>\n{content}\n\n<!--\n投稿网站：{ln.work_website}\n投稿作品：{work_id}\n投稿时间：{ts_str}\n投稿ID：{ep_id}\n-->')
             elif work_format == "txt":
-                content = re.sub(r"<ruby><rb>(\S[^</>]+)</rb><rp>[（(]</rp><rt>(\S[^</>]+)</rt><rp>[）)]</rp></ruby>",
+                content = re.sub(r"<ruby><rb>(\S[^</>]+)</rb><rp>[（(《]</rp><rt>(\S[^</>]+)</rt><rp>[）)》]</rp></ruby>",
                                  ruby_text,
                                  re.sub(r"</?p>", "", content.replace("<p><br />", "").replace("<br />", "\n")))
                 content += f'\n\n# 投稿网站：{ln.work_website}\n# 投稿作品：{work_id}\n# 投稿时间：{ts_str}\n# 投稿ID：{ep_id}'
-                with open(f'{work_dir}/web/未/{ep_fn}.txt', 'w', encoding='utf-8') as f:
-                    f.write(f'{title}\n{content}')
+                with open(f'{work_dir}/web/未/{ep_fn}_{ts}.txt', 'w', encoding='utf-8') as f:
+                    f.write(f'{title}\n\n{content}')
 
             print(f'\r{idx + 1} / {ep_total}', end='')
 
