@@ -107,22 +107,35 @@ class Syosetu(LightNovel):
         return f"{self.work_url}/{ep_id}"
 
     def get_ep_content_helper(self, ep_html) -> str:
-        return re.sub(r' id="L\d+"', '', ep_html
-                      .text
-                      .split('<div id="novel_honbun" class="novel_view">', 1)
-                      .pop()
-                      .split('</div>', 1)[0]
-                      ) \
+        txt = ep_html.text
+        pre = "" \
+            if 'id="novel_p"' not in txt \
+            else txt \
+                     .split('<div id="novel_p" class="novel_view">', 1) \
+                     .pop() \
+                     .split('</div>', 1)[0] + \
+                 '<p><br /></p>\n<hr />\n<p><br /></p>'
+        infix = txt \
+            .split('<div id="novel_honbun" class="novel_view">', 1) \
+            .pop() \
+            .split('</div>', 1)[0]
+        post = "" \
+            if 'id="novel_a"' not in txt \
+            else '<p><br /></p>\n<hr />\n<p><br /></p>' + \
+                 txt \
+                     .split('<div id="novel_a" class="novel_view">', 1) \
+                     .pop() \
+                     .split('</div>', 1)[0]
+        return re.sub(r' id="L[pa]?\d+"', '', pre + infix + post) \
             .strip()
 
     def get_ep_info(self, ep_raw) -> Tuple[str, str, int]:
         ep_id = ep_raw.split('/', 1)[0]
         title = ep_raw.split('/">', 1).pop().split('</a>', 1)[0]
         ts = int(time.mktime(time.strptime(
-            ep_raw.split('span title="', 1).pop().split(' 改稿', 1)[
-                0] if '<span' in ep_raw else
-            ep_raw.split('<dt class="long_update">', 1).pop().split('</dt>', 1)[
-                0].lstrip(), '%Y/%m/%d %H:%M')))
+            ep_raw.split('span title="', 1).pop().split(' 改稿', 1)[0]
+            if '<span' in ep_raw
+            else ep_raw.split('<dt class="long_update">', 1).pop().split('</dt>', 1)[0].lstrip(), '%Y/%m/%d %H:%M')))
 
         return ep_id, title, ts
 
@@ -262,7 +275,7 @@ def run(work_id: str, work_type: int, work_dir: str, work_format: str = "html",
             ep_id, title, ts = ln.get_ep_info(ep_raw)
 
             # if migrating, update the record file only
-            if work_migration and ep_id <= work_latest:
+            if work_migration and work_latest and int(ep_id) <= int(work_latest):
                 eps[ep_id] = {
                     'id': ep_id,
                     'title': title,
@@ -304,14 +317,14 @@ def run(work_id: str, work_type: int, work_dir: str, work_format: str = "html",
             elif work_format == "txt":
                 content = re.sub(r"<ruby><rb>(\S[^</>]+)</rb><rp>[（(《]</rp><rt>(\S[^</>]+)</rt><rp>[）)》]</rp></ruby>",
                                  ruby_text,
-                                 re.sub(r"</?p>", "", content.replace("<p><br />", "").replace("<br />", "\n")))
+                                 re.sub(r"</?p>", "", content.replace("<p><br />", "").replace("<br />", "\n").replace('<hr />', '================================')))
                 content += f'\n\n# 投稿网站：{ln.work_website}\n# 投稿作品：{work_id}\n# 投稿时间：{ts_str}\n# 投稿ID：{ep_id}'
                 with open(f'{work_dir}/web/未/{ep_fn}_{ts}.txt', 'w', encoding='utf-8') as f:
                     f.write(f'{title}\n\n{content}')
 
             print(f'\r{idx + 1} / {ep_total}', end='')
 
-            sleep(5)
+            sleep(3)
     finally:
         # dump work info JSON
         with open(work_json_path, 'w', encoding='utf-8') as f:

@@ -1,6 +1,7 @@
 import json
 import re
 import sys
+import traceback
 
 import ln
 
@@ -8,8 +9,6 @@ import ln
 def main():
     # 0 = no vpn; 1 = syosetu; 2 = kakuyomu
     mode = int(sys.argv[1]) if len(sys.argv) == 2 else 0
-
-    err = False  # error flag
 
     # open works info JSON
     with open('./episodes/index.json', 'r', encoding='utf-8') as f:
@@ -68,14 +67,13 @@ def main():
 
             del work['work_latest']
             work['work_latest'] = ''  # migration complete
-    except Exception as e:
-        err = True
-        print("出错咯：" + e)
+
+        index_json['migration'] = False
+    except:
+        traceback.print_exc()
     finally:
         # update the max index of existing dirs
         index_json['max'] = work_max
-        if not err:
-            index_json['migration'] = False
 
         # dump works info JSON
         with open('./episodes/index.json', 'w', encoding='utf-8') as f:

@@ -1,25 +1,29 @@
-# Web轻小说更新脚本（Python）
+# Web 轻小说更新脚本（Python）
 
 **前置要求**
-* Python v3.6或更高：https://www.python.org/downloads/
-* pip：Python包管理工具
-* request：Python网络请求库
-* urllib3 1.25.11：包含在request库的依赖中，但如果你需要全局魔法访问小说家，则需要手动安装（降级）
+
+- Python v3.6 或更高：https://www.python.org/downloads/
+- pip：Python 包管理工具
+- request：Python 网络请求库
+- urllib3 1.25.11：包含在 request 库的依赖中，但如果你需要全局魔法访问小说家，则需要手动安装（降级）
 
 **支持站点**
-* https://ncode.syosetu.com/
-* https://kakuyomu.jp/
+
+- https://ncode.syosetu.com/
+- https://kakuyomu.jp/
 
 **使用步骤**
-1. 下载Python并安装，推荐勾选pip和PATH选项
-2. 如果你没有勾选PATH，则需要手动设置Python的系统变量
-3. 如果你没有勾选pip，则需要手动安装pip
+
+1. 下载 Python 并安装，推荐勾选 pip 和 PATH 选项
+2. 如果你没有勾选 PATH，则需要手动设置 Python 的系统变量
+3. 如果你没有勾选 pip，则需要手动安装 pip
 4. 命令行：`pip install request`
 5. 如果你是魔法用户，命令行：`pip install urllib3==1.25.11`
 6. 修改 episodes/index.json 文件
 7. 命令行：`python update.py`
 
 **运行参数**
+
 ```
 # 0：更新「小説家になろう」和「カクヨム」，默认值
 # 1：更新「小説家になろう」
@@ -28,9 +32,11 @@ python update.py [0 | 1 | 2]
 ```
 
 **episodes/index.json**
-* 文件格式：JSON
-* // 后面是注释，到时候需要删掉
-* 初始样板
+
+- 文件格式：JSON
+- // 后面是注释，到时候需要删掉
+- 初始样板
+
 ```JSON
 {
   "format": "html",
@@ -41,7 +47,9 @@ python update.py [0 | 1 | 2]
   }
 }
 ```
-* 详解
+
+- 详解
+
 ```JSON
 {
   "format": "html", // 字符串，值[html | txt]
@@ -109,7 +117,9 @@ python update.py [0 | 1 | 2]
   }
 }
 ```
-* 获取カクヨム的作品ID为1177354054902351647的全部生肉
+
+- 获取カクヨム的作品 ID 为 1177354054902351647 的全部生肉
+
 ```JSON
 {
   "format": "html",
@@ -123,8 +133,10 @@ python update.py [0 | 1 | 2]
   }
 }
 ```
-* 获取カクヨム的作品ID为1177354054902351647的全部生肉
-* 并指定路径
+
+- 获取カクヨム的作品 ID 为 1177354054902351647 的全部生肉
+- 并指定路径
+
 ```JSON
 {
   "format": "html",
@@ -138,8 +150,10 @@ python update.py [0 | 1 | 2]
   }
 }
 ```
-* 获取カクヨム的作品ID为16816452219902715215的自章节ID 16816700426153064482以后的生肉
-* 并指定路径
+
+- 获取カクヨム的作品 ID 为 16816452219902715215 的自章节 ID 16816700426153064482 以后的生肉
+- 并指定路径
+
 ```JSON
 {
   "format": "html",
@@ -155,6 +169,7 @@ python update.py [0 | 1 | 2]
 ```
 
 **目录结构**
+
 ```
 ├── 1.転生したら第七王子だったので、気ままに魔術を極めます
 │   ├── toast // 熟肉文件夹
@@ -174,8 +189,9 @@ python update.py [0 | 1 | 2]
 ```
 
 **章节下载间隔**
+
 ```
 - ln.py
-  # 默认5秒
-  sleep(5)
+  # 默认3秒，可自行调节
+  sleep(3)
 ```
